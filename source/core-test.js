@@ -111,5 +111,16 @@ const ok = MM.parseStored(JSON.stringify({ nDays: 7, lastPlace: 'A', lastDate: T
 eq([ok.broken, ok.state.nDays, ok.state.people.length], [undefined, 7, 6], '正常な保存');
 eq(MM.parseStored(JSON.stringify({ nDays: 5, people: [] })).state.nDays, 3, 'nDays不正は3');
 eq(MM.parseStored(JSON.stringify({ people: [Object.assign({}, S[0], { met: '2027-01-01', due: '' })] })).broken, undefined, '未来日付の保存');
+
+// レビュー①の反映
+const sato = [Object.assign({}, S[0], { id: 'a1', name: '佐藤', company: '工務店', place: '', note: '' }), Object.assign({}, S[0], { id: 'a2', name: '佐藤', company: '税理士', place: '', note: '' })];
+eq(MM.parseStored(JSON.stringify({ people: sato })).state.people.length, 2, '同名・同日・同場の別人は保存データから消えない');
+const twins = [Object.assign({}, S[0], { id: 'a1', name: '佐藤', company: '', place: '', note: '' }), Object.assign({}, S[0], { id: 'a2', name: '佐藤', company: '', place: '', note: '' })];
+eq(MM.parseStored(JSON.stringify({ people: twins })).state.people.length, 2, '内容が全く同じ2件も id が違えば残す');
+r = MM.importText(JSON.stringify({ app: 'meetup-memo', people: twins }), [], T); eq(r.added, 2, 'ファイル内の同内容2件は両方取り込む');
+r = MM.importText(JSON.stringify({ app: 'meetup-memo', people: [Object.assign({}, twins[0], { id: 'z9' })] }), twins, T); eq(r.dup, 1, '既存と同内容は取り込まない');
+r = MM.importText(JSON.stringify({ app: 'meetup-memo', people: [Object.assign({}, S[1], { id: 'f1', met: '2026-12-01' })] }), [], T); eq(r.bad, 1, '会った日が未来の記録は取り込まない');
+r = MM.importText(JSON.stringify({ app: 'meetup-memo', people: ['constructor', '__proto__', 'toString'].map(id => Object.assign({}, S[1], { id, name: id })) }), [], T); eq([r.added, r.dup], [3, 0], 'idがconstructor等でも誤判定しない');
+eq(MM.upLabel({ kind: 'since', days: -4 }), '会った日が今日より後になっています（端末の日付を確認してください）', '未来の会った日の表示');
 console.log('pass', pass, 'fail', fail);
 process.exit(fail ? 1 : 0);

@@ -25,7 +25,7 @@ const LONG = { name: 'あ'.repeat(40), company: 'い'.repeat(60), note: 'う'.re
   }
   // 極端な値: 全角40字の名前・60字の会社・80字の一言・60字の次・365日超過 を12件
   await b.open(PAGE, 375, 900, 2, true, 'light');
-  await b.ev(`(()=>{const L=${JSON.stringify(LONG)};const t=MM.localYmd();const ppl=[];for(let i=0;i<12;i++)ppl.push({id:'L'+i,name:L.name,company:L.company,place:'お'.repeat(40),met:MM.addDays(t,-400),note:L.note,next:L.next,due:i%2?MM.addDays(t,-365):'',status:i<10?'todo':(i==10?'done':'skip'),createdAt:''});
+  await b.ev(`(()=>{const L=${JSON.stringify(LONG)};const t=MM.localYmd();const ppl=[];for(let i=0;i<12;i++)ppl.push({id:'L'+i,name:L.name.slice(0,38)+String(i).padStart(2,'0'),company:L.company,place:'お'.repeat(40),met:MM.addDays(t,-400),note:L.note,next:L.next,due:i%2?MM.addDays(t,-365):'',status:i<10?'todo':(i==10?'done':'skip'),createdAt:''});
     localStorage.setItem('meetup-memo-v1',JSON.stringify({version:1,nDays:3,people:ppl}))})()`);
   await b.open(PAGE, 375, 900, 2, true, 'light');
   await b.ev(`document.getElementById('done-sec').open=true`);
